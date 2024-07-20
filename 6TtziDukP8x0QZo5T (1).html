@@ -1,0 +1,127 @@
+<html><head><base href="https://corrkechat.ai/">
+<title>Corrke AI Chat</title>
+<style>
+body { 
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f0f8ff;
+}
+#chat-container {
+  height: 400px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background: white;
+}
+#user-input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+}
+#send-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.message {
+  margin-bottom: 10px;
+  padding: 5px;
+  border-radius: 5px;
+}
+.user { background: #e6f3ff; }
+.bot { background: #f0fff0; }
+</style>
+</head>
+<body>
+<h1>Chat with Corrke</h1>
+<div id="chat-container"></div>
+<form id="chat-form" method="GET" action="/chat">
+  <input type="text" id="user-input" name="message" placeholder="Type your message here...">
+  <button type="submit" id="send-btn">Send</button>
+</form>
+
+<script>
+const API_KEY = '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';
+const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+const chatContainer = document.getElementById('chat-container');
+const chatForm = document.getElementById('chat-form');
+const userInput = document.getElementById('user-input');
+
+chatForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const userMessage = userInput.value.trim();
+  if (!userMessage) return;
+
+  addMessage('user', userMessage);
+  userInput.value = '';
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'mixtral-8x7b-32768',
+        messages: [
+          {role: 'system', content: 'You are Corrke, a helpful AI assistant.'},
+          {role: 'user', content: userMessage}
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('API request failed');
+    }
+
+    const data = await response.json();
+    const botMessage = data.choices[0].message.content;
+    addMessage('bot', botMessage);
+  } catch (error) {
+    console.error('Error:', error);
+    addMessage('bot', 'Sorry, I encountered an error. Please try again later.');
+  }
+});
+
+function addMessage(sender, message) {
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message', sender);
+  messageElement.textContent = message;
+  chatContainer.appendChild(messageElement);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+addMessage('bot', 'Hello! I\'m Corrke. How can I assist you today?');
+</script>
+
+<p>Corrke is an advanced AI chatbot designed to assist you with a wide range of tasks and questions. Feel free to ask about any topic, and I'll do my best to help!</p>
+
+<h2>Features</h2>
+<ul>
+  <li>Natural language understanding</li>
+  <li>Contextual responses</li>
+  <li>Multi-turn conversations</li>
+  <li>Knowledge spanning various domains</li>
+</ul>
+
+<h2>Privacy Policy</h2>
+<p>Your privacy is important to us. Conversations with Corrke are not stored permanently and are only used to provide you with the best possible assistance during your current session.</p>
+
+<h2>Explore More</h2>
+<ul>
+  <li><a href="/about">About Corrke</a></li>
+  <li><a href="/use-cases">Use Cases</a></li>
+  <li><a href="/faq">Frequently Asked Questions</a></li>
+  <li><a href="/contact">Contact Us</a></li>
+</ul>
+
+</body></html>
